@@ -433,30 +433,34 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
         if (!validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].initialLayout)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkImageLayout in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                VALIDATION_ERROR_00342, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00342]);
+            skip_call |=
+                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                        VALIDATION_ERROR_00342, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00342]);
         }
 
         if (!validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].finalLayout)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkImageLayout in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                VALIDATION_ERROR_00343, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00343]);
+            skip_call |=
+                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                        VALIDATION_ERROR_00343, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00343]);
         }
         // TODO: insert VALIDATION_ERROR_00334 check here
 
         if (!validate_VkAttachmentLoadOp(pCreateInfo->pAttachments[i].loadOp)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkAttachmentLoadOp in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                VALIDATION_ERROR_00338, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00338]);
+            skip_call |=
+                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                        VALIDATION_ERROR_00338, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00338]);
         }
 
         if (!validate_VkAttachmentStoreOp(pCreateInfo->pAttachments[i].storeOp)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkAttachmentStoreOp in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                VALIDATION_ERROR_00339, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00339]);
+            skip_call |=
+                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                        VALIDATION_ERROR_00339, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00339]);
         }
         // TODO: insert VALIDATION_ERROR_00340 VALIDATION_ERROR_00341 VALIDATION_ERROR_00349 VALIDATION_ERROR_02351
     }
@@ -470,20 +474,22 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
     return result;
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image,
-                                              VkImageLayout imageLayout, const VkClearColorValue *pColor,
-                                              uint32_t rangeCount, const VkImageSubresourceRange *pRanges) {
+VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout,
+                                              const VkClearColorValue *pColor, uint32_t rangeCount,
+                                              const VkImageSubresourceRange *pRanges) {
     bool skipCall = false;
     layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
 
     if (imageLayout != VK_IMAGE_LAYOUT_GENERAL && imageLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+        char const str[] =
+            "vkCmdClearColorImage parameter, imageLayout, must be VK_IMAGE_LAYOUT_GENERAL or VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL";
         skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            (uint64_t)commandBuffer, __LINE__, IMAGE_INVALID_LAYOUT, "IMAGE",
-                            "vkCmdClearColorImage parameter, imageLayout, must be VK_IMAGE_LAYOUT_GENERAL or "
-                            "VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL");
+                            (uint64_t)commandBuffer, __LINE__, VALIDATION_ERROR_01086, "IMAGE", "%s. %s.", str,
+                            validation_error_map[VALIDATION_ERROR_01086]);
     }
 
     // For each range, image aspect must be color only
+    // TODO: this is a 'must' in the spec, so there should be a VU enum for it
     for (uint32_t i = 0; i < rangeCount; i++) {
         if (pRanges[i].aspectMask != VK_IMAGE_ASPECT_COLOR_BIT) {
             char const str[] =
@@ -499,17 +505,20 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer commandBuffer, VkI
         if (vk_format_is_depth_or_stencil(image_state->format)) {
             char const str[] = "vkCmdClearColorImage called with depth/stencil image.";
             skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, IMAGE_INVALID_FORMAT, "IMAGE", str);
+                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01088, "IMAGE", "%s. %s.", str,
+                                validation_error_map[VALIDATION_ERROR_01088]);
         } else if (vk_format_is_compressed(image_state->format)) {
             char const str[] = "vkCmdClearColorImage called with compressed image.";
             skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, IMAGE_INVALID_FORMAT, "IMAGE", str);
+                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01088, "IMAGE", "%s. %s.", str,
+                                validation_error_map[VALIDATION_ERROR_01088]);
         }
 
         if (!(image_state->usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
             char const str[] = "vkCmdClearColorImage called with image created without VK_IMAGE_USAGE_TRANSFER_DST_BIT.";
             skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, IMAGE_INVALID_USAGE, "IMAGE", str);
+                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01084, "IMAGE", "%s. %s.", str,
+                                validation_error_map[VALIDATION_ERROR_01084]);
         }
     }
 
