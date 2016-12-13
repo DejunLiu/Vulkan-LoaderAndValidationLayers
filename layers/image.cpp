@@ -430,30 +430,35 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
                                  IMAGE_RENDERPASS_INVALID_ATTACHMENT, "IMAGE", "%s", ss.str().c_str());
         }
 
-        if (!validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].initialLayout) ||
-            !validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].finalLayout)) {
+        if (!validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].initialLayout)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkImageLayout in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            // TODO: Verify against Valid Use section of spec. Generally if something yield an undefined result, it's invalid
             skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 IMAGE_RENDERPASS_INVALID_ATTACHMENT, "IMAGE", "%s", ss.str().c_str());
+                VALIDATION_ERROR_00342, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00342]);
         }
+
+        if (!validate_VkImageLayoutKHR(pCreateInfo->pAttachments[i].finalLayout)) {
+            std::stringstream ss;
+            ss << "vkCreateRenderPass parameter, VkImageLayout in pCreateInfo->pAttachments[" << i << "], is unrecognized";
+            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                VALIDATION_ERROR_00343, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00343]);
+        }
+        // TODO: insert VALIDATION_ERROR_00334 check here
 
         if (!validate_VkAttachmentLoadOp(pCreateInfo->pAttachments[i].loadOp)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkAttachmentLoadOp in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            // TODO: Verify against Valid Use section of spec. Generally if something yield an undefined result, it's invalid
             skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 IMAGE_RENDERPASS_INVALID_ATTACHMENT, "IMAGE", "%s", ss.str().c_str());
+                VALIDATION_ERROR_00338, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00338]);
         }
 
         if (!validate_VkAttachmentStoreOp(pCreateInfo->pAttachments[i].storeOp)) {
             std::stringstream ss;
             ss << "vkCreateRenderPass parameter, VkAttachmentStoreOp in pCreateInfo->pAttachments[" << i << "], is unrecognized";
-            // TODO: Verify against Valid Use section of spec. Generally if something yield an undefined result, it's invalid
             skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 IMAGE_RENDERPASS_INVALID_ATTACHMENT, "IMAGE", "%s", ss.str().c_str());
+                VALIDATION_ERROR_00339, "IMAGE", "%s. %s.", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_00339]);
         }
+        // TODO: insert VALIDATION_ERROR_00340 VALIDATION_ERROR_00341 VALIDATION_ERROR_00349 VALIDATION_ERROR_02351
     }
 
     if (skip_call) {
